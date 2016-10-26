@@ -5,17 +5,17 @@
 #define NR_SYMBOLS 6
 
 #define INTER_SYMBOL_TIME 0
-#define SYMBOL_ON_TIME 30000
+#define SYMBOL_ON_TIME 25000
 
-int controlPins[NR_CONTROL_PINS] = {7,9,10,6}; //LSB first
+int controlPins[NR_CONTROL_PINS] = {7,10,9,6}; // DCBA // MSB first
 
 byte symbol[NR_SYMBOLS][NR_CONTROL_PINS] = {
   {0,0,0,0}, // tilde
-  {0,0,1,0}, // +
-  {0,1,1,0}, // -
-  {1,0,0,0}, // Z
-  {1,1,0,0}, // Y
-  {1,0,1,0}  // X
+  {0,0,0,1}, // +
+  {0,0,1,1}, // -
+  {0,1,0,0}, // Z
+  {0,1,1,0}, // Y
+  {0,1,0,1}  // X
 };
 
 void setup(){
@@ -26,7 +26,7 @@ void setup(){
 
   randomSeed( analogRead(0) );
 
-  dePoison(10, 50);
+  dePoison(7, 50);
   
   //allOFF();
   
@@ -69,26 +69,26 @@ void loop(){
 
   switch (mode) {
     case 0:
-//      for (int fadein=100; fadein>0; fadein=fadein-10) {
-//        analogWrite(controlPins[3], fadein);
+//      for (int fadein=200; fadein>0; fadein=fadein-1) {
+//        analogWrite(controlPins[0], fadein);
 //        delay(10);
 //      }
-//      analogWrite(controlPins[3], 0);
+//      analogWrite(controlPins[0], 0);
       mode = 1;
       break;
     case 1:
-      for(int ii=0;ii<3; ii++){ // this for loop outputs the symbol
+      for(int ii=0;ii<NR_CONTROL_PINS; ii++){ // this for loop outputs the symbol
         digitalWrite(controlPins[ii], symbol[sym][ii]);
       }
       delay(SYMBOL_ON_TIME);
       mode = 2;
       break;
     case 2:
-//      for (int fadeout=100; fadeout<256; fadeout=fadeout+10) {
-//        analogWrite(controlPins[3], fadeout);
+//      for (int fadeout=50; fadeout<256; fadeout=fadeout+1) {
+//        analogWrite(controlPins[0], fadeout);
 //        delay(10);
 //      }
-//      analogWrite(controlPins[3], 255);
+//      analogWrite(controlPins[0], 255);
       mode = 3;
       break;
     case 3:
