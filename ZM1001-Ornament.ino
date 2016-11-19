@@ -6,6 +6,7 @@
 
 #define INTER_SYMBOL_TIME 0
 #define SYMBOL_ON_TIME 25000
+#define OFF_TIME 25000
 
 int controlPins[NR_CONTROL_PINS] = {7,10,9,6}; // DCBA // MSB first
 
@@ -98,6 +99,10 @@ void loop(){
       sym = random(50,300); // dirty reuse of a variable, 2nd time
       dePoison(mode, sym); // do a light show before next digit
 
+      // taking a break from time to time
+      if (sym > 250) {
+        delay(OFF_TIME);
+      }
       sym = random(0, NR_SYMBOLS);
       delay(INTER_SYMBOL_TIME);
       
@@ -108,6 +113,7 @@ void loop(){
   allOFF();
 
 }
+
 
 
 
