@@ -1,11 +1,13 @@
 
+#include <Entropy.h>
+
 // ********* BEGIN USER CONFIG AREA **********
 
 #define NR_CONTROL_PINS 4
 #define NR_SYMBOLS 6
 
 #define INTER_SYMBOL_TIME 0
-#define SYMBOL_ON_TIME 25000
+#define SYMBOL_ON_TIME 15000
 #define OFF_TIME 25000
 
 int controlPins[NR_CONTROL_PINS] = {7,10,9,6}; // DCBA // MSB first
@@ -21,29 +23,42 @@ byte symbol[NR_SYMBOLS][NR_CONTROL_PINS] = {
 
 void setup(){
 
+  uint32_t seed_value;
+  Entropy.initialize();
+  seed_value = Entropy.random();
+  randomSeed(seed_value);
+
   for(int i=0; i < NR_CONTROL_PINS; i++) {
     pinMode( controlPins[i], OUTPUT );
   }
 
-  randomSeed( analogRead(0) );
-
-  dePoison(7, 50);
+  dePoison(7, 50, 0);
   
   //allOFF();
   
 } // END SETUP
 
 
-void dePoison(int rounds, int dpdelay) {
+void dePoison(int rounds, int dpdelay, int dir) {
   
   allOFF();
   
   for(int k=0; k<rounds; k=k+1){
-    for (int j=0; j<NR_SYMBOLS; j=j+1) {  // this for loop goes through all symbols
-      for(int i=0;i<NR_CONTROL_PINS; i++){ // this for loop outputs the symbol
-        digitalWrite(controlPins[i], symbol[j][i]);
+    if (dir == 0) {
+      for (int j=0; j<NR_SYMBOLS; j=j+1) {  // this for loop goes through all symbols
+        for(int i=0;i<NR_CONTROL_PINS; i++){ // this for loop outputs the symbol
+          digitalWrite(controlPins[i], symbol[j][i]);
+        }
+        delay(dpdelay);
       }
-      delay(dpdelay);
+    } else {
+      for (int j=NR_SYMBOLS; j>0; j=j-1) {  // this for loop goes through all symbols
+        for(int i=0;i<NR_CONTROL_PINS; i++){ // this for loop outputs the symbol
+          digitalWrite(controlPins[i], symbol[j-1][i]);
+        }
+        delay(dpdelay);
+      }
+      
     }
   }
   
@@ -65,6 +80,7 @@ void allOFF(){
 
 void loop(){
 
+  int dir;
   static int mode = 1;  // modes; 0 = fade in, 1 = keep, 2 = fade out, 3 = off
   static unsigned int sym;
 
@@ -96,12 +112,15 @@ void loop(){
       
       
       mode = random(1, 10); // dirty reuse of a variable
-      sym = random(50,300); // dirty reuse of a variable, 2nd time
-      dePoison(mode, sym); // do a light show before next digit
+      sym = random(20,300); // dirty reuse of a variable, 2nd time
+      dir = random(0,2); // looping direction
+      dePoison(mode, sym, dir); // do a light show before next digit
 
       // taking a break from time to time
-      if (sym > 250) {
+      if (sym > 200) {
+        allOFF();
         delay(OFF_TIME);
+        dePoison(mode, sym, 0);
       }
       sym = random(0, NR_SYMBOLS);
       delay(INTER_SYMBOL_TIME);
@@ -113,9 +132,5 @@ void loop(){
   allOFF();
 
 }
-
-
-
-
 
 
