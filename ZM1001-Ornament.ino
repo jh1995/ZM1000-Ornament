@@ -81,11 +81,12 @@ void allOFF(){
 void loop(){
 
   int dir;
-  static int mode = 1;  // modes; 0 = fade in, 1 = keep, 2 = fade out, 3 = off
+  static int mode = 0;  // modes; 0 = fade in, 1 = keep, 2 = fade out, 3 = off
   static unsigned int sym;
 
   switch (mode) {
     case 0:
+      sym = random(0, NR_SYMBOLS); // randomize new symbol
 //      for (int fadein=200; fadein>0; fadein=fadein-1) {
 //        analogWrite(controlPins[0], fadein);
 //        delay(10);
@@ -122,7 +123,6 @@ void loop(){
         delay(OFF_TIME);
         dePoison(mode, sym, 0);
       }
-      sym = random(0, NR_SYMBOLS);
       delay(INTER_SYMBOL_TIME);
       
       mode = 0; // go into fade-in
